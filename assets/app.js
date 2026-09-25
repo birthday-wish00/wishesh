@@ -217,17 +217,19 @@
   /* ---------- background music: starts on the first tap anywhere (no button) ---------- */
   // Browsers only allow sound after a real user gesture, and on a phone a tap only
   // counts on pointerup / touchend / click (not on pointerdown / touchstart).
-  // <body onclick="playMusic()"> in index.html is the main trigger; these listeners
-  // also catch taps that never reach <body> and any key press, and they keep trying
-  // until the music is really playing.
+  // <body onclick="document.getElementById('lagu').play()"> in index.html is the
+  // main trigger, exactly as asked for. These listeners are a backstop for taps that
+  // never reach <body> and for key presses, and they keep trying until the music is
+  // really playing.
   //
-  // The song itself ships with the site (assets/music/DEVIL.mp3), so it comes from
-  // the same host as the page. Should that file ever disappear, the same song is
-  // tried from the GitHub URLs below, in order.
+  // The song also ships with the site (assets/music/DEVIL.mp3), served from the same
+  // host as the page, because a URL on GitHub's raw hosts can 404 or be blocked by a
+  // network. The page's URL comes first; if it ever fails, the same song is tried
+  // from these copies, in order.
   const MUSIC_SOURCES = [
+    "https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3",
     "assets/music/DEVIL.mp3",
     "https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3",
-    "https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3",
   ];
   const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
   let musicStarted = false;  // the song has actually played at least once
