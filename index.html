@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
-<body>
+<body onclick="document.getElementById('lagu').play()">
   <div class="bg">
     <div class="blob b1"></div>
     <div class="blob b2"></div>
@@ -58,8 +58,15 @@
     </footer>
   </main>
 
-  <button id="musicBtn" class="music-btn" hidden aria-label="Toggle music">🎵</button>
-  <audio id="music" loop preload="none"></audio>
+  <!--
+    Background music, exactly as it was asked for:
+      <audio src="…/DEVIL.mp3" autoplay="true" id="lagu"></audio>
+      <body onclick="document.getElementById('lagu').play()">
+    `loop` and `preload="auto"` are kept so the song keeps going and starts
+    instantly on the first tap. If this URL ever fails, assets/app.js falls back
+    to the copy of the song that ships with the site.
+  -->
+  <audio id="lagu" src="https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3" autoplay="true" loop preload="auto"></audio>
 
   <script src="assets/common.js"></script>
   <script src="assets/app.js"></script>
