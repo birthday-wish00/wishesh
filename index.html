@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
-<body>
+<body onclick="playMusic()">
   <div class="bg">
     <div class="blob b1"></div>
     <div class="blob b2"></div>
@@ -58,8 +58,13 @@
     </footer>
   </main>
 
-  <!-- Background music: starts on the first tap anywhere (see setupMusic in app.js) -->
-  <audio id="music" loop preload="none"></audio>
+  <!--
+    Background music. The src below is a fallback so the very first tap works even
+    before data.json has loaded; the admin panel's URL (data.json "settings.music")
+    overrides it as soon as the data arrives.
+    Playing starts from the tap on <body> (see playMusic in assets/app.js) - no button.
+  -->
+  <audio id="music" src="https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3" autoplay loop preload="auto"></audio>
 
   <script src="assets/common.js"></script>
   <script src="assets/app.js"></script>

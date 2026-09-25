@@ -197,8 +197,12 @@
     if (s.title) { $("#title").textContent = s.title; document.title = "🎉 " + s.title; }
     $("#subtitle").textContent = s.subtitle || "";
     const audio = $("#music");
-    if (!s.music) audio.pause();
-    else if (audio.getAttribute("src") !== s.music) {
+    if (!s.music) {
+      // Music turned off in the admin panel: stop it and drop the fallback src.
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    } else if (audio.getAttribute("src") !== s.music) {
       // New song set in the admin panel: switch to it, and keep playing if music was on.
       const wasPlaying = !audio.paused;
       audio.src = s.music;
@@ -207,27 +211,33 @@
   }
 
   /* ---------- background music: starts on the first tap anywhere (no button) ---------- */
-  // Browsers only allow sound after a real user gesture, and on phones a tap only
+  // Browsers only allow sound after a real user gesture, and on a phone a tap only
   // counts on pointerup / touchend / click (not on pointerdown / touchstart).
-  // So listen for all of them, and keep listening until the music is really playing.
+  // <body onclick="playMusic()"> in index.html is the main trigger; these listeners
+  // also catch taps that never reach <body> and any key press, and they keep trying
+  // until the music is really playing.
   const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
   let musicStarted = false;
 
   function playMusic() {
     const audio = $("#music");
-    if (musicStarted || !state.settings.music || !audio.paused) return;
-    audio.play().catch(() => { /* not allowed yet — the next tap tries again */ });
+    // No song at all, already playing, or already started (a pause from the phone's
+    // media controls must stick).
+    if (musicStarted || !audio.paused || !audio.src) return;
+    audio.play().catch(() => { /* not allowed yet - the next tap tries again */ });
   }
 
   function setupMusic() {
     GESTURES.forEach((ev) => document.addEventListener(ev, playMusic, { capture: true, passive: true }));
     $("#music").addEventListener("playing", () => {
-      // Started. From now on taps don't touch it, and a pause from the phone's
-      // media controls is respected.
+      // Started. From now on taps don't touch it.
       musicStarted = true;
       GESTURES.forEach((ev) => document.removeEventListener(ev, playMusic, { capture: true }));
     }, { once: true });
   }
+
+  // Used by the inline onclick on <body> in index.html.
+  window.playMusic = playMusic;
 
   /* ---------- data ---------- */
   async function load() {
