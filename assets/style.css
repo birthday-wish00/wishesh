@@ -206,13 +206,7 @@ footer { text-align: center; color: var(--muted); margin-top: 60px; font-size: .
 .admin-link { color: var(--muted); text-decoration: none; font-size: .82rem; opacity: .6; }
 .admin-link:hover { opacity: 1; color: var(--text); }
 
-.music-btn {
-  position: fixed; right: 20px; bottom: 20px; width: 54px; height: 54px; border-radius: 50%;
-  font-size: 1.4rem; background: linear-gradient(120deg, var(--pink), var(--violet)); z-index: 40;
-  box-shadow: 0 10px 30px rgba(155, 92, 255, .45);
-}
-.music-btn.playing { animation: spin 3s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin { to { transform: rotate(360deg); } } /* used by the admin panel's .spinner */
 
 @media (max-width: 600px) {
   main { padding-top: 36px; }

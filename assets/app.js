@@ -105,13 +105,14 @@
     const meta = `${info.label}${info.turning > 0 ? ` · turns ${info.turning}` : ""}`;
     const units = ["Days", "Hours", "Minutes", "Seconds"].map((l, i) =>
       el("div", { class: "unit" }, [el("span", { class: "num", "data-big": "dhms"[i], text: "00" }), el("span", { class: "lbl", text: l })]));
-    box.append(
+    // filter(Boolean) drops the optional note: append() would print a null child as the text "null".
+    box.append(...[
       el("div", { class: "spot-label", text: "⏳ Next birthday" }),
       el("div", { class: "spot-name", text: person.name }),
       el("div", { class: "spot-meta", text: meta }),
       person.note ? el("div", { class: "spot-note", text: `“${person.note}”` }) : null,
       el("div", { class: "big-count", "data-date": person.date }, units)
-    );
+    ].filter(Boolean));
   }
 
   function card({ person, info }, index) {
@@ -195,43 +196,37 @@
   function applySettings(s) {
     if (s.title) { $("#title").textContent = s.title; document.title = "🎉 " + s.title; }
     $("#subtitle").textContent = s.subtitle || "";
-    const btn = $("#musicBtn"), audio = $("#music");
-    if (s.music) {
-      if (audio.getAttribute("src") !== s.music) audio.src = s.music;
-      btn.hidden = false;
-    } else {
-      btn.hidden = true;
-      audio.pause();
+    const audio = $("#music");
+    if (!s.music) audio.pause();
+    else if (audio.getAttribute("src") !== s.music) {
+      // New song set in the admin panel: switch to it, and keep playing if music was on.
+      const wasPlaying = !audio.paused;
+      audio.src = s.music;
+      if (wasPlaying) audio.play().catch(() => {});
     }
   }
 
-  function setupMusic() {
-    const btn = $("#musicBtn"), audio = $("#music");
-    const sync = () => btn.classList.toggle("playing", !audio.paused);
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (audio.paused) audio.play().catch(() => {}); else audio.pause();
-    });
-    audio.addEventListener("play", sync);
-    audio.addEventListener("pause", sync);
-    // Like the original site: try to autoplay; if the browser blocks it,
-    // start on the first tap / key press anywhere on the page.
-    const events = ["pointerdown", "touchstart", "keydown"];
-    const unlock = (e) => {
-      if (e && e.target && e.target.closest && e.target.closest("#musicBtn")) return;
-      events.forEach((ev) => document.removeEventListener(ev, unlock));
-      if (state.settings.music && audio.paused && !audio.dataset.stopped) audio.play().catch(() => {});
-    };
-    events.forEach((ev) => document.addEventListener(ev, unlock, { passive: true }));
-    // Remember when the visitor turns music off on purpose, so taps don't restart it.
-    btn.addEventListener("click", () => { audio.dataset.stopped = audio.paused ? "1" : ""; });
-    audio.addEventListener("error", () => { btn.hidden = true; });
+  /* ---------- background music: starts on the first tap anywhere (no button) ---------- */
+  // Browsers only allow sound after a real user gesture, and on phones a tap only
+  // counts on pointerup / touchend / click (not on pointerdown / touchstart).
+  // So listen for all of them, and keep listening until the music is really playing.
+  const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+  let musicStarted = false;
+
+  function playMusic() {
+    const audio = $("#music");
+    if (musicStarted || !state.settings.music || !audio.paused) return;
+    audio.play().catch(() => { /* not allowed yet — the next tap tries again */ });
   }
 
-  function tryAutoplay() {
-    const audio = $("#music");
-    if (!state.settings.music || !audio.paused || audio.dataset.stopped) return;
-    audio.play().catch(() => { /* blocked until the first interaction — handled above */ });
+  function setupMusic() {
+    GESTURES.forEach((ev) => document.addEventListener(ev, playMusic, { capture: true, passive: true }));
+    $("#music").addEventListener("playing", () => {
+      // Started. From now on taps don't touch it, and a pause from the phone's
+      // media controls is respected.
+      musicStarted = true;
+      GESTURES.forEach((ev) => document.removeEventListener(ev, playMusic, { capture: true }));
+    }, { once: true });
   }
 
   /* ---------- data ---------- */
@@ -244,7 +239,7 @@
       state.settings = data.settings || {};
       applySettings(state.settings);
       render();
-      tryAutoplay();
+      playMusic(); // try autoplay; most browsers block it until the first tap
     } catch (err) {
       console.error("Could not load data.json", err);
       if (!state.people.length) {

@@ -12,7 +12,7 @@ A birthday countdown site for friends and family. It runs on GitHub Pages and ha
 - Search, plus filters for *This month* and *Next 30 days*
 - Shows the age each person is turning, a progress bar, and an optional note per person
 - Floating balloons, twinkling stars and glass cards. Works on mobile
-- Optional background music (starts on the first tap, like the original)
+- Optional background music that starts on the first tap or click anywhere on the page (no music button)
 - **Admin panel**: add / edit / delete people, change the title and subtitle, bulk import (the old `Name` + `DD MM YYYY` text format also works) and export a backup
 - **Telegram reminders** (optional) for birthdays today and tomorrow, sent daily by GitHub Actions
 
@@ -55,6 +55,8 @@ The token is stored as a GitHub secret, so it's **never visible** on the website
 ## Background music (optional)
 
 Upload an mp3 to the repo (e.g. `music.mp3`), then enter `music.mp3` under **Admin → Site settings → Background music URL** and save.
+
+Browsers don't allow sound until the visitor interacts with the page, so the music starts on their first tap, click or key press anywhere. There's no music button. It loops until the tab is closed, and visitors can still pause it from their phone's media controls.
 
 ## Files
 
