@@ -59,12 +59,13 @@
   </main>
 
   <!--
-    Background music. The src below is a fallback so the very first tap works even
-    before data.json has loaded; the admin panel's URL (data.json "settings.music")
-    overrides it as soon as the data arrives.
+    Background music. The song ships with the site, so the src is a relative path:
+    it is served from the same host as the page and can't 404 or be blocked the way
+    the GitHub raw URLs can. If this copy ever goes missing, assets/app.js falls
+    back to the same song from GitHub.
     Playing starts from the tap on <body> (see playMusic in assets/app.js) - no button.
   -->
-  <audio id="music" src="https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3" autoplay loop preload="auto"></audio>
+  <audio id="lagu" src="assets/music/DEVIL.mp3" autoplay loop preload="auto"></audio>
 
   <script src="assets/common.js"></script>
   <script src="assets/app.js"></script>

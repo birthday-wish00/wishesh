@@ -193,20 +193,24 @@
   }
 
   /* ---------- settings ---------- */
+  const musicEl = () => $("#lagu");
+
   function applySettings(s) {
     if (s.title) { $("#title").textContent = s.title; document.title = "🎉 " + s.title; }
     $("#subtitle").textContent = s.subtitle || "";
-    const audio = $("#music");
+    const a = musicEl();
     if (!s.music) {
       // Music turned off in the admin panel: stop it and drop the fallback src.
-      audio.pause();
-      audio.removeAttribute("src");
-      audio.load();
-    } else if (audio.getAttribute("src") !== s.music) {
+      a.pause();
+      a.removeAttribute("src");
+      a.load();
+      currentSrc = "";
+    } else if (a.getAttribute("src") !== s.music) {
       // New song set in the admin panel: switch to it, and keep playing if music was on.
-      const wasPlaying = !audio.paused;
-      audio.src = s.music;
-      if (wasPlaying) audio.play().catch(() => {});
+      // A dead URL is caught by musicError(), which falls back to the bundled song.
+      const wasPlaying = !a.paused;
+      setSong(s.music);
+      if (wasPlaying) { playRequested = true; a.play().catch(() => {}); }
     }
   }
 
@@ -216,24 +220,59 @@
   // <body onclick="playMusic()"> in index.html is the main trigger; these listeners
   // also catch taps that never reach <body> and any key press, and they keep trying
   // until the music is really playing.
+  //
+  // The song itself ships with the site (assets/music/DEVIL.mp3), so it comes from
+  // the same host as the page. Should that file ever disappear, the same song is
+  // tried from the GitHub URLs below, in order.
+  const MUSIC_SOURCES = [
+    "assets/music/DEVIL.mp3",
+    "https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3",
+    "https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3",
+  ];
   const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
-  let musicStarted = false;
+  let musicStarted = false;  // the song has actually played at least once
+  let playRequested = false; // a gesture asked for it, and it hasn't been paused since
+  let currentSrc = "";       // the URL we last asked the <audio> to load
+
+  function setSong(url) {
+    currentSrc = url;
+    musicEl().src = url;
+  }
 
   function playMusic() {
-    const audio = $("#music");
-    // No song at all, already playing, or already started (a pause from the phone's
-    // media controls must stick).
-    if (musicStarted || !audio.paused || !audio.src) return;
-    audio.play().catch(() => { /* not allowed yet - the next tap tries again */ });
+    const a = musicEl();
+    if (!a.src) return;                               // no song at all
+    if (musicStarted && !playRequested) return;       // paused on purpose: leave it alone
+    if (!a.paused) return;                            // already playing
+    playRequested = true;
+    a.play().catch(() => { /* not allowed yet - the next tap tries again */ });
+  }
+
+  // A dead URL must not leave the page silent: move on to the next copy of the song.
+  function musicError() {
+    if (!currentSrc) return;                          // music is switched off
+    const a = musicEl();
+    const next = MUSIC_SOURCES[MUSIC_SOURCES.indexOf(currentSrc) + 1];
+    if (!next) return;                                // out of copies
+    const retry = musicStarted || playRequested;
+    setSong(next);
+    if (retry) { playRequested = true; a.play().catch(() => {}); }
   }
 
   function setupMusic() {
+    const a = musicEl();
+    currentSrc = a.getAttribute("src") || "";
     GESTURES.forEach((ev) => document.addEventListener(ev, playMusic, { capture: true, passive: true }));
-    $("#music").addEventListener("playing", () => {
+    a.addEventListener("error", musicError);
+    a.addEventListener("pause", () => { if (musicStarted) playRequested = false; });
+    a.addEventListener("playing", () => {
       // Started. From now on taps don't touch it.
       musicStarted = true;
       GESTURES.forEach((ev) => document.removeEventListener(ev, playMusic, { capture: true }));
     }, { once: true });
+    // A song that fails before this script has run leaves an error on the element
+    // with no event to catch it, so check for one now.
+    if (a.error) musicError();
   }
 
   // Used by the inline onclick on <body> in index.html.

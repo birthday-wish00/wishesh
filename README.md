@@ -56,9 +56,11 @@ The token is stored as a GitHub secret, so it's **never visible** on the website
 
 Upload an mp3 to the repo (e.g. `music.mp3`), then enter `music.mp3` under **Admin → Site settings → Background music URL** and save.
 
-Browsers don't allow sound until the visitor interacts with the page, so the music starts on their first tap, click or key press anywhere. There's no music button: `<body onclick="playMusic()">` in `index.html` does it, and `assets/app.js` adds the same listeners for taps that never reach `<body>`, plus a retry if the browser refuses the first attempt. The song URL also sits on the `<audio>` tag in `index.html` as a fallback, so a tap works even before `data.json` has loaded — whatever is in **Background music URL** wins once the data arrives, and clearing it turns the music off. The song loops until the tab is closed, and visitors can still pause it from their phone's media controls.
+The song is bundled with the site: `assets/music/DEVIL.mp3` (4 MB), served from the same host as the page. That matters — a song hosted on GitHub's raw URLs can 404 or be blocked by a network, which leaves the page silent, while a file inside the repo is always reachable. If the bundled file ever goes missing, `assets/app.js` retries the same song from GitHub, in this order: `assets/music/DEVIL.mp3` → `https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3` → `https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3`.
 
-> Use the plain `https://raw.githubusercontent.com/<user>/<repo>/main/<file>.mp3` form for the URL. The `https://github.com/<user>/<repo>/raw/refs/heads/main/<file>.mp3` form redirects to a `…/refs/heads/main/…` raw URL that GitHub intermittently returns 404 for, which leaves the music silent.
+Browsers don't allow sound until the visitor interacts with the page, so the music starts on their first tap, click or key press anywhere. There's no music button: `<body onclick="playMusic()">` in `index.html` does it, and `assets/app.js` adds the same listeners for taps that never reach `<body>`, plus a retry if the browser refuses the first attempt. The song loops until the tab is closed, and visitors can still pause it from their phone's media controls.
+
+> Use the plain `https://raw.githubusercontent.com/<user>/<repo>/main/<file>.mp3` form for any URL you type into the admin panel. The `https://github.com/<user>/<repo>/raw/refs/heads/main/<file>.mp3` form redirects to a `…/refs/heads/main/…` raw URL that GitHub intermittently returns 404 for, which leaves the music silent.
 
 ## Files
 
@@ -67,6 +69,7 @@ Browsers don't allow sound until the visitor interacts with the page, so the mus
 | `index.html`, `assets/style.css`, `assets/app.js` | Public countdown page |
 | `admin.html`, `assets/admin.css`, `assets/admin.js` | Admin panel (GitHub API) |
 | `assets/common.js` | Shared date helpers |
+| `assets/music/DEVIL.mp3` | The bundled background song (see above) |
 | `data.json` | **All the data**: people and site settings |
 | `scripts/remind.mjs`, `.github/workflows/reminders.yml` | Daily Telegram reminders |
 | `.github/workflows/static.yml` | Deploys the site to GitHub Pages on every push to `main` |
