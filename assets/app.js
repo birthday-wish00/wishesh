@@ -205,12 +205,19 @@
     }
   }
 
+  function safePlay(audio) {
+    try {
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch (_) { /* autoplay blocked */ }
+  }
+
   function setupMusic() {
     const btn = $("#musicBtn"), audio = $("#music");
     const sync = () => btn.classList.toggle("playing", !audio.paused);
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+      if (audio.paused) safePlay(audio); else audio.pause();
     });
     audio.addEventListener("play", sync);
     audio.addEventListener("pause", sync);
@@ -220,7 +227,7 @@
     const unlock = (e) => {
       if (e && e.target && e.target.closest && e.target.closest("#musicBtn")) return;
       events.forEach((ev) => document.removeEventListener(ev, unlock));
-      if (state.settings.music && audio.paused && !audio.dataset.stopped) audio.play().catch(() => {});
+      if (state.settings.music && audio.paused && !audio.dataset.stopped) safePlay(audio);
     };
     events.forEach((ev) => document.addEventListener(ev, unlock, { passive: true }));
     // Remember when the visitor turns music off on purpose, so taps don't restart it.
@@ -231,7 +238,7 @@
   function tryAutoplay() {
     const audio = $("#music");
     if (!state.settings.music || !audio.paused || audio.dataset.stopped) return;
-    audio.play().catch(() => { /* blocked until the first interaction — handled above */ });
+    safePlay(audio); // may be blocked until the first interaction — handled above
   }
 
   /* ---------- data ---------- */
