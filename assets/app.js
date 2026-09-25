@@ -214,13 +214,24 @@
     });
     audio.addEventListener("play", sync);
     audio.addEventListener("pause", sync);
-    // Like the original site: start music on the first tap anywhere (browsers block autoplay).
-    document.addEventListener("click", () => {
-      if (state.settings.music && audio.paused && !audio.dataset.started) {
-        audio.dataset.started = "1";
-        audio.play().catch(() => {});
-      }
-    }, { once: true });
+    // Like the original site: try to autoplay; if the browser blocks it,
+    // start on the first tap / key press anywhere on the page.
+    const events = ["pointerdown", "touchstart", "keydown"];
+    const unlock = (e) => {
+      if (e && e.target && e.target.closest && e.target.closest("#musicBtn")) return;
+      events.forEach((ev) => document.removeEventListener(ev, unlock));
+      if (state.settings.music && audio.paused && !audio.dataset.stopped) audio.play().catch(() => {});
+    };
+    events.forEach((ev) => document.addEventListener(ev, unlock, { passive: true }));
+    // Remember when the visitor turns music off on purpose, so taps don't restart it.
+    btn.addEventListener("click", () => { audio.dataset.stopped = audio.paused ? "1" : ""; });
+    audio.addEventListener("error", () => { btn.hidden = true; });
+  }
+
+  function tryAutoplay() {
+    const audio = $("#music");
+    if (!state.settings.music || !audio.paused || audio.dataset.stopped) return;
+    audio.play().catch(() => { /* blocked until the first interaction — handled above */ });
   }
 
   /* ---------- data ---------- */
@@ -233,6 +244,7 @@
       state.settings = data.settings || {};
       applySettings(state.settings);
       render();
+      tryAutoplay();
     } catch (err) {
       console.error("Could not load data.json", err);
       if (!state.people.length) {

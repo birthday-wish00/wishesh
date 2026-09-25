@@ -2,7 +2,7 @@
   "settings": {
     "title": "Happy Birthday",
     "subtitle": "Counting down to every special day of our favourite people 🎂",
-    "music": "",
+    "music": "https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3",
     "timezone": "Asia/Kolkata"
   },
   "people": [
