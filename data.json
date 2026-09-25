@@ -1,0 +1,85 @@
+{
+  "settings": {
+    "title": "Happy Birthday",
+    "subtitle": "Counting down to every special day of our favourite people 🎂",
+    "music": "https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3",
+    "timezone": "Asia/Kolkata"
+  },
+  "people": [
+    {
+      "name": "Sakti Nath Sardar",
+      "date": "2002-04-26",
+      "note": ""
+    },
+    {
+      "name": "Ripan Mondal",
+      "date": "2002-12-04",
+      "note": ""
+    },
+    {
+      "name": "Suniti Sarkar",
+      "date": "2004-08-30",
+      "note": ""
+    },
+    {
+      "name": "Tanmay Sarkar",
+      "date": "1995-05-13",
+      "note": ""
+    },
+    {
+      "name": "Subir Gharami",
+      "date": "2001-10-27",
+      "note": ""
+    },
+    {
+      "name": "Maikel Sarkar",
+      "date": "2001-03-10",
+      "note": ""
+    },
+    {
+      "name": "Dhruba Dutta Roy",
+      "date": "2001-07-22",
+      "note": ""
+    },
+    {
+      "name": "Priti Ghosh",
+      "date": "2001-12-15",
+      "note": ""
+    },
+    {
+      "name": "Hriday Mandal",
+      "date": "2002-02-10",
+      "note": ""
+    },
+    {
+      "name": "Ujjwal Das",
+      "date": "2000-11-13",
+      "note": ""
+    },
+    {
+      "name": "Ardhendu Tarafdar(Laltu)",
+      "date": "2007-01-22",
+      "note": ""
+    },
+    {
+      "name": "Samiran Gharami",
+      "date": "2006-08-13",
+      "note": ""
+    },
+    {
+      "name": "Rakesh Sarkar",
+      "date": "2000-06-11",
+      "note": ""
+    },
+    {
+      "name": "Shubho Baidya",
+      "date": "2002-06-16",
+      "note": ""
+    },
+    {
+      "name": "Bivas Sarkar",
+      "date": "1998-11-10",
+      "note": ""
+    }
+  ]
+}
