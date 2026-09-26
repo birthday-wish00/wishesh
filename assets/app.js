@@ -7,7 +7,10 @@
   /* ---------- background decoration ---------- */
   function decorate() {
     const stars = $("#stars");
-    for (let i = 0; i < 70; i++) {
+    // Keep the decorative layer light; it is behind the useful content and
+    // should never compete with scrolling or the countdown timer.
+    const starCount = innerWidth < 600 ? 28 : 48;
+    for (let i = 0; i < starCount; i++) {
       const s = document.createElement("i");
       s.className = "star";
       s.style.left = Math.random() * 100 + "%";
@@ -18,7 +21,7 @@
     }
     const colors = ["#ff6b9d", "#9b5cff", "#ffd166", "#4de3ff", "#43e97b", "#ff8a5c"];
     const balloons = $("#balloons");
-    const count = innerWidth < 600 ? 6 : 12;
+    const count = innerWidth < 600 ? 4 : 8;
     for (let i = 0; i < count; i++) {
       const b = document.createElement("i");
       b.className = "balloon";
@@ -214,24 +217,22 @@
     }
   }
 
-  /* ---------- background music: starts on the first tap anywhere (no button) ---------- */
-  // Browsers only allow sound after a real user gesture, and on a phone a tap only
-  // counts on pointerup / touchend / click (not on pointerdown / touchstart).
-  // <body onclick="document.getElementById('lagu').play()"> in index.html is the
-  // main trigger, exactly as asked for. These listeners are a backstop for taps that
-  // never reach <body> and for key presses, and they keep trying until the music is
-  // really playing.
+  /* ---------- background music: starts on the first gesture (no button) ---------- */
+  // Browsers only allow sound after a real user gesture. These listeners keep
+  // trying until the music is really playing, without requiring an inline handler
+  // on every body click.
   //
   // The song also ships with the site (assets/music/DEVIL.mp3), served from the same
   // host as the page, because a URL on GitHub's raw hosts can 404 or be blocked by a
   // network. The page's URL comes first; if it ever fails, the same song is tried
   // from these copies, in order.
   const MUSIC_SOURCES = [
-    "https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3",
     "assets/music/DEVIL.mp3",
     "https://raw.githubusercontent.com/all-drama/Nxnx/main/DEVIL.mp3",
   ];
-  const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+  // Keep the listener list small: pointerup covers mouse and modern touch, while
+  // touchend supports older mobile browsers and keydown covers keyboard users.
+  const GESTURES = ["pointerup", "touchend", "keydown"];
   let musicStarted = false;  // the song has actually played at least once
   let playRequested = false; // a gesture asked for it, and it hasn't been paused since
   let currentSrc = "";       // the URL we last asked the <audio> to load
@@ -290,7 +291,9 @@
       state.settings = data.settings || {};
       applySettings(state.settings);
       render();
-      playMusic(); // try autoplay; most browsers block it until the first tap
+      // Do not call play() here. Apart from being blocked by browsers, an early
+      // attempt can start downloading the large audio file before the visitor
+      // asks for music. setupMusic() waits for a real gesture instead.
     } catch (err) {
       console.error("Could not load data.json", err);
       if (!state.people.length) {

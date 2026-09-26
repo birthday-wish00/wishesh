@@ -36,6 +36,7 @@ label { display: grid; gap: 6px; font-size: .92rem; font-weight: 500; }
 .check input { width: 18px; height: 18px; accent-color: var(--pink); }
 .row3 { display: grid; grid-template-columns: 1fr 1fr .8fr; gap: 10px; margin-top: 12px; }
 details summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
+.adv summary .small { margin-left: 4px; font-weight: 400; }
 details summary:hover { color: var(--text); }
 .help ol { margin: 12px 0 8px 20px; display: grid; gap: 6px; font-size: .9rem; color: #ddd4f5; }
 .help a, .back, #repoLink, #historyLink { color: var(--cyan); text-decoration: none; }

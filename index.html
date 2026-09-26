@@ -11,10 +11,12 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" />
+  <!-- Load the decorative fonts after first paint so a slow font request cannot block the page. -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" /></noscript>
   <link rel="stylesheet" href="assets/style.css" />
 </head>
-<body onclick="document.getElementById('lagu').play()">
+<body>
   <div class="bg">
     <div class="blob b1"></div>
     <div class="blob b2"></div>
@@ -59,14 +61,11 @@
   </main>
 
   <!--
-    Background music, exactly as it was asked for:
-      <audio src="…/DEVIL.mp3" autoplay="true" id="lagu"></audio>
-      <body onclick="document.getElementById('lagu').play()">
-    `loop` and `preload="auto"` are kept so the song keeps going and starts
-    instantly on the first tap. If this URL ever fails, assets/app.js falls back
-    to the copy of the song that ships with the site.
+    Music is deliberately not downloaded while the page is loading. Browsers
+    only permit playback after a gesture, so assets/app.js starts it on the
+    first tap, click or key press and falls back if the URL fails.
   -->
-  <audio id="lagu" src="https://github.com/all-drama/Nxnx/raw/refs/heads/main/DEVIL.mp3" autoplay="true" loop preload="auto"></audio>
+  <audio id="lagu" src="assets/music/DEVIL.mp3" loop preload="none"></audio>
 
   <script src="assets/common.js"></script>
   <script src="assets/app.js"></script>
