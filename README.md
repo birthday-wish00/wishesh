@@ -26,7 +26,7 @@ admin.html ──(your token)──▶ GitHub API: update data.json ──▶ ne
 live site ◀── GitHub Pages redeploys (≈1 min) ◀── "Deploy static content" workflow
 ```
 
-1. You open `admin.html` and paste a GitHub token (one-time setup, see below). Pasting connects automatically, and the panel detects `birthday-wish00/wishesh`; repository settings are only needed if you use a fork.
+1. You open `admin.html` and paste a GitHub token (one-time setup, see below). Pasting connects automatically, and the panel detects `birthday-wish00/wishesh` from the page URL.
 2. The panel reads `data.json` through the GitHub API. You make your changes, then click **☁️ Save to GitHub**.
 3. The save is a normal **Git commit** (e.g. `Admin: add Rahul Das`). The existing Pages workflow redeploys the site, and the change goes live in about a minute.
 4. Every change is kept in the Git history, so you can always see or restore an older version.
