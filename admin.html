@@ -9,7 +9,9 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" />
+  <!-- Load the decorative fonts after first paint so a slow font request cannot block the panel. -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet" /></noscript>
   <link rel="stylesheet" href="assets/style.css" />
   <link rel="stylesheet" href="assets/admin.css" />
 </head>
@@ -21,14 +23,14 @@
     <form id="loginForm" class="login glass" autocomplete="off">
       <div class="lock">🔐</div>
       <h1 class="admin-title">Admin Panel</h1>
-      <p class="muted center">Changes are saved straight into your GitHub repository.</p>
+      <p class="muted center">Paste your GitHub token and the repository will load automatically.</p>
 
       <label>GitHub token
-        <input id="token" type="password" required placeholder="github_pat_…" autocomplete="off" spellcheck="false" />
+        <input id="token" type="password" required placeholder="ghp_… or github_pat_…" autocomplete="new-password" spellcheck="false" />
       </label>
 
       <details class="adv">
-        <summary>Repository settings</summary>
+        <summary>Repository settings <span class="muted small">(detected automatically)</span></summary>
         <div class="row3">
           <label>Owner <input id="owner" required spellcheck="false" /></label>
           <label>Repo <input id="repo" required spellcheck="false" /></label>
@@ -50,7 +52,7 @@
           <li><b>Permissions → Repository permissions → Contents</b> → <em>Read and write</em>.</li>
           <li>Click <b>Generate token</b>, copy it and paste it above.</li>
         </ol>
-        <p class="muted small">Your token is only stored in this browser and is only ever sent to <code>api.github.com</code>.</p>
+        <p class="muted small"><code>ghp_…</code> classic tokens also work when they have the <code>repo</code> scope. Your token is only stored in this browser and is only ever sent to <code>api.github.com</code>.</p>
       </details>
       <a class="back" href="./">← Back to site</a>
     </form>

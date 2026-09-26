@@ -10,6 +10,9 @@
   const FILE = "data.json";
   const API = "https://api.github.com";
   const LS_KEY = "bd-admin";
+  // This page belongs to this repository. The GitHub Pages URL is also
+  // inspected below, so the settings still work when previewed from a fork.
+  const DEFAULT_REPO = { owner: "birthday-wish00", repo: "wishesh" };
 
   const state = {
     cfg: null,          // { token, owner, repo, branch }
@@ -29,7 +32,7 @@
       const repo = seg && !seg.endsWith(".html") ? seg : `${owner}.github.io`;
       return { owner, repo };
     }
-    return { owner: "birthday-wish00", repo: "wishesh" };
+    return { ...DEFAULT_REPO };
   }
 
   function loadCfg() {
@@ -37,6 +40,18 @@
       return JSON.parse(localStorage.getItem(LS_KEY) || sessionStorage.getItem(LS_KEY) || "null");
     } catch { return null; }
   }
+  function loginDefaults() {
+    const detected = guessRepo();
+    const saved = loadCfg();
+    // A first-time visitor only needs to enter the token. Keep an explicitly
+    // saved fork if the user chose one in Repository settings.
+    return {
+      owner: (saved && saved.owner) || detected.owner,
+      repo: (saved && saved.repo) || detected.repo,
+      branch: (saved && saved.branch) || ""
+    };
+  }
+
   function saveCfg(cfg, remember) {
     localStorage.removeItem(LS_KEY);
     sessionStorage.removeItem(LS_KEY);
@@ -383,23 +398,36 @@
   function showLogin(errMsg) {
     $("#app").hidden = true;
     $("#login").hidden = false;
-    const g = state.cfg || loadCfg() || guessRepo();
+    const g = state.cfg || loginDefaults();
     $("#owner").value = g.owner || "";
     $("#repo").value = g.repo || "";
-    $("#branch").value = (state.cfg && state.cfg.branch) || "";
+    $("#branch").value = g.branch || "";
     $("#repoHint").textContent = `${$("#owner").value}/${$("#repo").value}`;
     const e = $("#loginErr");
     e.hidden = !errMsg;
     e.textContent = errMsg || "";
   }
 
+  // Pasting a GitHub token is an explicit user action, so connect immediately
+  // instead of making the user fill in the already-detected repository or click
+  // a second button. The button remains available for tokens with another prefix.
+  $("#token").addEventListener("paste", () => {
+    setTimeout(() => {
+      const token = $("#token").value.trim();
+      if (/^(ghp_|github_pat_)/.test(token) && !$("#loginBtn").disabled) {
+        $("#loginForm").requestSubmit();
+      }
+    }, 0);
+  });
+
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = $("#loginBtn");
+    const detected = guessRepo();
     const cfg = {
       token: $("#token").value.trim(),
-      owner: $("#owner").value.trim(),
-      repo: $("#repo").value.trim(),
+      owner: $("#owner").value.trim() || detected.owner,
+      repo: $("#repo").value.trim() || detected.repo,
       branch: $("#branch").value.trim()
     };
     btn.disabled = true;

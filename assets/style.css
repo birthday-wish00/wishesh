@@ -157,6 +157,8 @@ h1 {
 
 .card {
   position: relative; padding: 22px; overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: 270px;
   transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
   animation: pop .55s cubic-bezier(.2, .9, .3, 1.2) both;
 }
@@ -217,6 +219,15 @@ footer { text-align: center; color: var(--muted); margin-top: 60px; font-size: .
   .btn + .btn { margin-left: 0; }
 }
 
+/* Mobile devices get the lighter version of the glass effect. Blur filters on
+   many cards are attractive, but they are expensive on phone GPUs. */
+@media (max-width: 800px), (pointer: coarse) {
+  .blob { animation: none; filter: blur(70px); }
+  .glass, .search, .badge { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .card:hover { transform: none; box-shadow: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .glass, .search, .badge { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
