@@ -17,7 +17,10 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* "Outfit" has no Bengali glyphs, so wishes in Bengali fall through to the
+     next family. Noto Sans Bengali ships with Android/Chrome OS and is
+     web-loaded below for everything else. */
+  font-family: "Outfit", "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--text);
   background: radial-gradient(ellipse at top, var(--bg-1), var(--bg-2) 70%) fixed;
   min-height: 100vh;
