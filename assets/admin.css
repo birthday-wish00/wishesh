@@ -40,7 +40,8 @@ details summary:hover { color: var(--text); }
 .help a, .back, #repoLink, #historyLink { color: var(--cyan); text-decoration: none; }
 .help a:hover, #repoLink:hover, #historyLink:hover { text-decoration: underline; }
 .back { text-align: center; font-size: .9rem; color: var(--muted); }
-.err { color: #ff8a8a; font-size: .9rem; text-align: center; }
+.err { color: #ff8a8a; font-size: .9rem; text-align: center; line-height: 1.6; margin: 0; }
+.err b { color: #ffb3b3; }
 
 /* ---------- app ---------- */
 .app { max-width: 1040px; margin: 0 auto; padding: 20px 16px; }

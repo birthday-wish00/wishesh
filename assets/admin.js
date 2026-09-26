@@ -14,6 +14,18 @@
   // inspected below, so the settings still work when previewed from a fork.
   const DEFAULT_REPO = { owner: "birthday-wish00", repo: "wishesh" };
 
+  /*
+   * The panel reads and writes data.json through the GitHub Contents API, so the
+   * token has to be able to do both. Spell the two supported token kinds out in
+   * every token error: a rejected login is otherwise a dead end, because GitHub
+   * only answers with a bare 401/403 and no hint about what was wrong.
+   */
+  const TOKEN_KINDS =
+    'a <code>ghp_…</code> classic personal access token with the <code>repo</code> scope, ' +
+    'or a <code>github_pat_…</code> fine-grained token with <b>Contents: Read and write</b> access';
+  const TOKEN_INVALID = `This panel requires a valid GitHub token: ${TOKEN_KINDS}.`;
+  const TOKEN_NO_WRITE = `This token can't write to this repository. This panel requires a valid GitHub token: ${TOKEN_KINDS}.`;
+
   const state = {
     cfg: null,          // { token, owner, repo, branch }
     sha: null,          // blob sha of data.json on GitHub (needed for updates)
@@ -283,7 +295,7 @@
       if (err.status === 409 || err.status === 422) {
         toast("⚠️ The file changed on GitHub since you loaded it. Reload the page and apply your change again.", "bad", 9000);
       } else if (err.status === 401 || err.status === 403) {
-        toast("🔒 GitHub rejected the token. Make sure it has <b>Contents: Read and write</b> access to this repo.", "bad", 9000);
+        toast(`🔒 GitHub rejected the token. This panel requires a valid GitHub token: ${TOKEN_KINDS}.`, "bad", 9000);
       } else {
         toast("❌ Save failed: " + esc(err.message), "bad", 8000);
       }
@@ -383,12 +395,15 @@
     renderAll();
   }
 
-  function showLogin(errMsg) {
+  // `msg` is rendered as HTML so the token names can be marked up as <code>.
+  // Every caller passes either a hard-coded string below or an escaped message.
+  function showLogin(msg, isHtml = false) {
     $("#app").hidden = true;
     $("#login").hidden = false;
     const e = $("#loginErr");
-    e.hidden = !errMsg;
-    e.textContent = errMsg || "";
+    e.hidden = !msg;
+    if (isHtml) e.innerHTML = msg || "";
+    else e.textContent = msg || "";
   }
 
   // Pasting a GitHub token is an explicit user action, so connect immediately
@@ -423,11 +438,11 @@
       toast(`👋 Connected to <b>${esc(cfg.owner)}/${esc(cfg.repo)}</b>`, "ok");
     } catch (err) {
       state.cfg = null;
-      const msg = err.status === 401 ? "Invalid token. Please check and try again."
+      const msg = err.status === 401 ? TOKEN_INVALID
         : err.status === 404 ? "Repository not found — or the token doesn't have access to it."
-        : err.status === 403 ? "Token doesn't have write access. Give it “Contents: Read and write”."
-        : err.message;
-      showLogin(msg);
+        : err.status === 403 ? TOKEN_NO_WRITE
+        : esc(err.message);
+      showLogin(msg, true);
     } finally {
       btn.disabled = false;
       btn.textContent = "Connect to GitHub";
@@ -454,7 +469,12 @@
         return;
       } catch (err) {
         state.cfg = null;
-        showLogin(err.status === 401 ? "Your saved token has expired. Please paste a new one." : "Couldn't connect: " + err.message);
+        showLogin(
+          err.status === 401
+            ? `Your saved token has expired or been revoked. ${TOKEN_INVALID}`
+            : "Couldn't connect: " + esc(err.message),
+          true
+        );
         return;
       }
     }
