@@ -40,18 +40,6 @@
       return JSON.parse(localStorage.getItem(LS_KEY) || sessionStorage.getItem(LS_KEY) || "null");
     } catch { return null; }
   }
-  function loginDefaults() {
-    const detected = guessRepo();
-    const saved = loadCfg();
-    // A first-time visitor only needs to enter the token. Keep an explicitly
-    // saved fork if the user chose one in Repository settings.
-    return {
-      owner: (saved && saved.owner) || detected.owner,
-      repo: (saved && saved.repo) || detected.repo,
-      branch: (saved && saved.branch) || ""
-    };
-  }
-
   function saveCfg(cfg, remember) {
     localStorage.removeItem(LS_KEY);
     sessionStorage.removeItem(LS_KEY);
@@ -398,11 +386,6 @@
   function showLogin(errMsg) {
     $("#app").hidden = true;
     $("#login").hidden = false;
-    const g = state.cfg || loginDefaults();
-    $("#owner").value = g.owner || "";
-    $("#repo").value = g.repo || "";
-    $("#branch").value = g.branch || "";
-    $("#repoHint").textContent = `${$("#owner").value}/${$("#repo").value}`;
     const e = $("#loginErr");
     e.hidden = !errMsg;
     e.textContent = errMsg || "";
@@ -426,9 +409,9 @@
     const detected = guessRepo();
     const cfg = {
       token: $("#token").value.trim(),
-      owner: $("#owner").value.trim() || detected.owner,
-      repo: $("#repo").value.trim() || detected.repo,
-      branch: $("#branch").value.trim()
+      owner: detected.owner,
+      repo: detected.repo,
+      branch: ""
     };
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Connecting…';
@@ -460,9 +443,6 @@
     showLogin();
   });
 
-  $("#owner").addEventListener("input", () => ($("#repoHint").textContent = `${$("#owner").value}/${$("#repo").value}`));
-  $("#repo").addEventListener("input", () => ($("#repoHint").textContent = `${$("#owner").value}/${$("#repo").value}`));
-
   /* ---------- boot ---------- */
   (async function boot() {
     const saved = loadCfg();
@@ -470,6 +450,7 @@
       try {
         await connect(saved);
         showApp();
+        toast(`👋 Connected to <b>${esc(saved.owner)}/${esc(saved.repo)}</b>`, "ok");
         return;
       } catch (err) {
         state.cfg = null;
